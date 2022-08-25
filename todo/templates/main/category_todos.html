@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h4 class="mt-4">
+  Todos für Kategorie "{{category.name}}"
+</h4>
+<br>
+<div class="row">
+
+  {% for todo in todos %}
+
+   <!--  -->
+   <div class="col-4 mb-3">
+
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          <b>
+            {% if todo.completed %}
+            <strike>
+              {{ todo.title }}
+            </strike>
+            {% else %}
+            {{ todo.title }}
+            {% endif %}
+          </b>
+        </h5>
+      </div>
+
+
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          Kategorie:
+          <a class="btn btn-sm btn-outline text-{{todo.category.color}}"
+            href="{{ url_for('main.category_todos', category_id=todo.category.id) }}">{{ todo.category.name }}</a>
+        </li>
+        <li class="list-group-item">
+          Priorität:
+          {% if todo.priority == 0 %}
+          Ohne
+          {% endif %}
+          {% if todo.priority == 1 %}
+          Niedrig
+          {% endif %}
+          {% if todo.priority == 2 %}
+          Mittel
+          {% endif %}
+          {% if todo.priority == 3 %}
+          Hoch
+          {% endif %}
+        </li>
+        <li class="list-group-item">
+          Status:
+          {% if todo.completed %}
+          Abgeschlossen <a class="btn btn-outline btn-sm text-success"
+            href="{{url_for('main.toggle_status', todo_id=todo.id)}}"><i class="bi bi-check-circle-fill"></i></a>
+          {% else %}
+          Ausstehend <a class="btn btn-outline btn-sm text-dark"
+            href="{{url_for('main.toggle_status', todo_id=todo.id)}}"><i class="bi bi-check-circle"></i></a>
+          {% endif %}
+        </li>
+
+        <li class="list-group-item">
+          Geburtstermin: {{todo.date}}
+        </li>
+
+
+      </ul>
+      <div class="card-body">
+        <a href="{{ url_for('main.update_todo', todo_id=todo.id) }}" class="btn btn-outline btn-sm text-info">Aktualisieren</a>
+        <a href="{{ url_for('main.delete_todo', todo_id=todo.id) }}" class="btn btn-outline btn-sm text-danger">Löschen</a>
+      </div>
+    </div>
+
+  </div>
+  <!--  -->
+  {% endfor %}
+</div>
+
+{% endblock content %}

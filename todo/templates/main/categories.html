@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="alert alert-secondary" role="alert">
+  {{ messages[0] }}
+</div>
+{% endif %}
+{% endwith %}
+
+<h1 class="mt-3">
+  Kategorien
+</h1>
+<h3 class="">
+  Verfügbare Kategorien
+</h3>
+
+<div class="row mt-4 ">
+  {% for category in categories %}
+  <div class="col-3 mb-3">
+    <div class="card" style="height: 150px;">
+      <div class="card-body">
+        <span style="font-size: x-large;">
+          {{ category.name }}
+        </span>
+        <span><i class="bi bi-circle-fill" style="font-size:x-large; color: {{category.color}};"></i></span> <br>
+        <span>{{ category.todos|length }} todos</span>
+        <br>
+        <a href="{{url_for('main.delete_category', category_id=category.id)}}" class="card-link">Löschen</a>
+        {% if category.todos | length != 0 %}
+        <a class="card-link" href="{{ url_for('main.category_todos', category_id=category.id)  }}">Tods anzeigen</a>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+
+<div style="height: 200px">
+
+</div>
+<div class="container fixed-bottom" id="form_div">
+
+
+  <form action="" method="post" class="px-4 py-2 bg-light border border-2">
+    <h4>Kategorie hinzufügen</h4>
+    <div class="row">
+
+      <div class="col-6">
+        <label>Name</label>
+        <div class="mb-3">
+          {{ form.name(required="", class="form-control") }}
+        </div>
+      </div>
+
+      <div class="col-4">
+        <label>Farbe</label>
+        <div class="mb-3">
+          <input type="color" name="color" class="form-control">
+        </div>
+      </div>
+
+      <div class="col-2">
+        <label></label>
+        <div class="mb-3">
+          <button class="btn btn-primary rounded-0" type="submit"><i class="bi bi-plus-lg"></i></button>
+        </div>
+      </div>
+
+    </div>
+
+  </form>
+</div>
+
+
+
+
+
+
+
+
+{% endblock %}

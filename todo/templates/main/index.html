@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="alert alert-secondary" role="alert">
+  {{ messages[0] }}
+</div>
+{% endif %}
+{% endwith %}
+
+<h1 class="mt-3">
+  Herzlich willkommen, {{ current_user.username }}!
+</h1>
+
+<h3>
+  Ihre Todo-Einträge
+</h3>
+
+<p>Nach Datum sortieren:
+  <a class="button is-small" href="{{ url_for('main.index', sort_by='date') }}">
+    <i class="bi bi-arrow-up-circle text-dark"></i>
+  </a>
+
+  <a class="button is-small" href="{{ url_for('main.index', sort_by='date', descending='yes') }}">
+    <i class="bi bi-arrow-down-circle text-dark"></i>
+  </a>
+</p>
+<p>Nach Priorität sortieren:
+  <a class="button is-small" href="{{ url_for('main.index', sort_by='priority') }}">
+    <i class="bi bi-arrow-up-circle text-dark"></i>
+  </a>
+
+  <a class="button is-small" href="{{ url_for('main.index', sort_by='priority', descending='yes') }}">
+    <i class="bi bi-arrow-down-circle text-dark"></i>
+  </a>
+</p>
+
+<p>
+  <strong>
+
+    Sortiert nach:
+    {% if sort_by == 'date' %}
+    Datum -
+    {% else %}
+    Priorität -
+    {% endif %}
+
+    {% if descending == 'yes' %}
+    Absteigende Reihenfolge
+    {% else %}
+    Aufsteigende Reihenfolge
+    {% endif %}
+  </strong>
+
+</p>
+<br>
+
+
+
+
+
+
+
+<div class="row">
+
+  {% for todo in todos %}
+
+  <!--  -->
+  <div class="col-sm-12 col-md-4 mb-md-3">
+
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          <b>
+            {% if todo.completed %}
+            <strike>
+              {{ todo.title }}
+            </strike>
+            {% else %}
+            {{ todo.title }}
+            {% endif %}
+          </b>
+        </h5>
+      </div>
+
+
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          Kategorie:
+          {% if todo.category.id %}
+          <a class="btn btn-sm btn-outline" href="{{ url_for('main.category_todos', category_id=todo.category.id) }}">{{
+            todo.category.name }}</a>
+          {% endif %}
+        </li>
+        <li class="list-group-item">
+          Priorität:
+          {% if todo.priority == 0 %}
+          Ohne
+          {% endif %}
+          {% if todo.priority == 1 %}
+          Niedrig
+          {% endif %}
+          {% if todo.priority == 2 %}
+          Mittel
+          {% endif %}
+          {% if todo.priority == 3 %}
+          Hoch
+          {% endif %}
+        </li>
+        <li class="list-group-item">
+          Status:
+          {% if todo.completed %}
+          Abgeschlossen <a class="btn btn-outline btn-sm text-success"
+            href="{{url_for('main.toggle_status', todo_id=todo.id)}}"><i class="bi bi-check-circle-fill"></i></a>
+          {% else %}
+          Ausstehend <a class="btn btn-outline btn-sm text-dark"
+            href="{{url_for('main.toggle_status', todo_id=todo.id)}}"><i class="bi bi-check-circle"></i></a>
+          {% endif %}
+        </li>
+
+        <li class="list-group-item">
+          Geburtstermin: {{todo.date}}
+        </li>
+
+
+      </ul>
+      <div class="card-body">
+        <a href="{{ url_for('main.update_todo', todo_id=todo.id) }}"
+          class="btn btn-outline btn-sm text-info">Aktualisieren</a>
+        <a href="{{ url_for('main.delete_todo', todo_id=todo.id) }}"
+          class="btn btn-outline btn-sm text-danger">Löschen</a>
+      </div>
+    </div>
+
+  </div>
+  <!--  -->
+  {% endfor %}
+</div>
+
+
+<div style="height: 200px">
+
+</div>
+<div class="container fixed-bottom" id="form_div">
+
+
+  <form action="" method="post" class="px-4 py-2 bg-light border border-2 rounded-0">
+    <h4>
+      {% if existing_todo %}
+      Aufgaben aktualisieren
+      {% else %}
+      Aufgaben hinzufügen
+      {% endif %}
+    </h4>
+    {{ form.csrf_token }}
+
+    <input type="hidden" name="todo_id" value="{{existing_todo.id}}">
+
+
+
+    <div class="row ">
+
+      <div class="col-sm-12 col-md-4">
+        {{ form.title.label(class="label") }}
+        <div class="mb-md-3">
+          <input class="form-control" id="title" name="title" required="" type="text" value="{{existing_todo.title}}">
+        </div>
+      </div>
+
+      <div class="col-sm-3 col-md-2">
+        <span class="label">Kategorie</span>
+        <div class="mb-md-3">
+          <select class="form-control" id="category" name="category" required="" value="{{existing_todo.category}}">
+            {% for choice in choices %}
+            <option value="{{ choice.id }}" class="has-background-{{ choice.color }}" style="color: white;">
+              {{choice.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-sm-3 col-md-2">
+        {{ form.priority.label(class="") }}
+        <div class="mb-md-3">
+          {{ form.priority(required="", class="form-control", value="{{existing_todo.priority}}") }}
+        </div>
+      </div>
+      <div class="col-sm-3 col-md-2">
+        <label>Datum einstellen</label>
+        <div class="mb-md-3">
+          <input required class="form-control" type="date" name="date">
+        </div>
+      </div>
+      <div class="col-sm-3 col-md-2">
+        <label for=""></label>
+        <div class="" style="height: 100%;">
+          {% if existing_todo %}
+          <button class="btn btn-success rounded-0 p-0" type="submit"
+            style="font-size: x-small; height: 40px !important; width: 40px !important;">Aktualisieren</button>
+          {% else %}
+          <button class="btn btn-primary rounded-0" type="submit"><i class="bi bi-plus-lg"></i></button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
